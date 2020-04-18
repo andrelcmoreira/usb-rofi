@@ -1,0 +1,6 @@
+SUBSYSTEM=="block",
+ACTION=="add",
+ENV{DEVTYPE}=="partition",
+ENV{DEVNAME}=="/dev/sd**",
+ENV{ID_VENDOR}=="?*",
+RUN+="/bin/sh /home/andre/.local/share/scripts/usb_media_manager %E{DEVNAME} %E{ID_VENDOR}"
