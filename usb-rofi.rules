@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="block", ENV{DEVTYPE}=="partition", RUN+="/bin/sh /home/andre/.local/share/scripts/usb-mgr -m '%E{DEVNAME}:%E{ID_VENDOR}'"

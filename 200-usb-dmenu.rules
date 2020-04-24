@@ -1,1 +1,0 @@
-ACTION=="add", SUBSYSTEM=="block", ENV{DEVTYPE}=="partition", RUN+="/bin/sh /home/andre/dev/usb-dmenu/usb-mgr %E{DEVNAME} %E{ID_VENDOR}"

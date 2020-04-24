@@ -1,0 +1,43 @@
+#!/bin/sh
+
+umount_device()
+{
+    n_devices=$(($(df -h | wc -l) - 1))
+    selected_row=$(df -h | tail -n $n_devices | rofi -dmenu -p "Select the device to umount" -lines $n_devices)
+    mount_point=$(echo "$selected_row" | awk '{print $6}')
+
+    if [ -s "$mount_point" ]; then
+        if umount "$mount_point" && rmdir "$mount_point" ; then
+            su -c "notify-send \"device umounted, now you can remove it safely\" -i \"$(pwd)/.local/share/scripts/usb_icon.png\"" andre
+        fi
+    fi
+}
+
+mount_device()
+{
+    n_devices=$(($(df -h | wc -l) - 1))
+    answer=$(printf "mount\nignore" | su -c "rofi -dmenu -p \"Device '$2 $1' detected. Select the action\" -lines $n_devices" andre)
+
+    if [ "$answer" = "mount" ]; then
+        mount_dir="/mnt/$2"
+        mkdir "$mount_dir"
+        mount "$1" "$mount_dir"
+        su -c "xfce4-terminal -e \"ranger $mount_dir\"" andre
+    fi
+}
+
+export DISPLAY=:0
+
+while getopts 'm:u' op ; do
+    case $op in
+        m) dev_desc=$(echo "$OPTARG" | cut -f1 -d":")
+           dev_part=$(echo "$OPTARG" | cut -f2 -d":")
+
+           mount_device "$dev_desc" "$dev_part" ;;
+
+        u) umount_device ;;
+        *) ;;
+    esac
+done
+
+exit 0
