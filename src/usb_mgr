@@ -8,7 +8,8 @@ umount_device()
 
     if [ -s "$mount_point" ]; then
         if umount "$mount_point" && rmdir "$mount_point" ; then
-            su -c "notify-send \"device umounted, now you can remove it safely\" -i \"$(pwd)/.local/share/scripts/usb_icon.png\"" andre
+            notify_cmd="notify-send \"device umounted, now you can remove it safely\" -i \"SCRIPT_PATH/usb_icon.png\""
+            su -c "$notify_cmd" USERNAME
         fi
     fi
 }
@@ -16,21 +17,24 @@ umount_device()
 mount_device()
 {
     n_devices=$(($(df -h | wc -l) - 1))
-    answer=$(printf "mount\nignore" | su -c "rofi -dmenu -p \"Device '$2 $1' detected. Select the action\" -lines $n_devices" andre)
+    rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\" -lines $n_devices"
+    answer=$(printf "mount\nignore" | su -c "$rofi_cmd" USERNAME)
 
     if [ "$answer" = "mount" ]; then
-        mount_dir="/mnt/$2"
-        mkdir "$mount_dir"
-        mount "$1" "$mount_dir"
-        su -c "xfce4-terminal -e \"ranger $mount_dir\"" andre
+        mount_point="/mnt/$2"
+        mkdir "$mount_point"
+        if mount "$1" "$mount_point" ; then
+            notify_cmd="notify-send \"device mounted\" -i \"SCRIPT_PATH/usb_icon.png\""
+            su -c "$notify_cmd" USERNAME
+        fi
     fi
 }
 
 export DISPLAY=:0
 
-while getopts 'm:u' op ; do
+while getopts 'd:u' op ; do
     case $op in
-        m) dev_desc=$(echo "$OPTARG" | cut -f1 -d":")
+        d) dev_desc=$(echo "$OPTARG" | cut -f1 -d":")
            dev_part=$(echo "$OPTARG" | cut -f2 -d":")
 
            mount_device "$dev_desc" "$dev_part" ;;

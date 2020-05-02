@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "$USER" != "root" ]; then
+    echo "you must to be root to proceed"
+    exit 1
+fi
+
+user=$(logname)
+path="/home/$user/.local/usb-rofi"
+
+sed -i "s|SCRIPT_PATH|$path|g" udev/usb_rofi.rules
+sed -i "s|SCRIPT_PATH|$path|g" src/usb_mgr
+sed -i "s|USERNAME|$user|g" src/usb_mgr
+
+mkdir "$path"
+cp src/usb_mgr "$path"
+cp src/usb_icon.png "$path"
+cp udev/usb_rofi.rules /lib/udev/rules.d
+udevadm control --reload-rules
+
+exit 0
