@@ -1,5 +1,31 @@
 #!/bin/sh
 
+do_umount()
+{
+    daemon_init=$(ps -p 1 -o comm=)
+
+    if [ "$daemon_init" = "systemd" ]; then
+        systemd-umount "$1" && return 0
+    else
+        umount "$1" && return 0
+    fi
+
+    return 1
+}
+
+do_mount()
+{
+    daemon_init=$(ps -p 1 -o comm=)
+
+    if [ "$daemon_init" = "systemd" ]; then
+        systemd-mount --no-block --automount=yes --collect "$1" "$2" && return 0
+    else
+        mount "$1" "$2" && return 0
+    fi
+
+    return 1
+}
+
 umount_device()
 {
     n_devices=$(($(df -h | wc -l) - 1))
@@ -7,7 +33,8 @@ umount_device()
     mount_point=$(echo "$selected_row" | awk '{print $6}')
 
     if [ -s "$mount_point" ]; then
-        if umount "$mount_point" && rmdir "$mount_point" ; then
+        if do_umount "$mount_point" ; then
+            rmdir "$mount_point"
             notify_cmd="notify-send \"device umounted, now you can remove it safely\" -i \"SCRIPT_PATH/usb_icon.png\""
             su -c "$notify_cmd" USERNAME
         fi
@@ -22,9 +49,10 @@ mount_device()
 
     if [ "$answer" = "mount" ]; then
         mount_point="/mnt/$2"
+
         mkdir "$mount_point"
-        if mount "$1" "$mount_point" ; then
-            notify_cmd="notify-send \"device mounted\" -i \"SCRIPT_PATH/usb_icon.png\""
+        if do_mount "$1" "$mount_point" ; then
+            notify_cmd="notify-send \"device $1 mounted at $mount_point\" -i \"SCRIPT_PATH/usb_icon.png\""
             su -c "$notify_cmd" USERNAME
         fi
     fi
@@ -34,10 +62,10 @@ export DISPLAY=:0
 
 while getopts 'd:u' op ; do
     case $op in
-        d) dev_desc=$(echo "$OPTARG" | cut -f1 -d":")
-           dev_part=$(echo "$OPTARG" | cut -f2 -d":")
+        d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
+           dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
 
-           mount_device "$dev_desc" "$dev_part" ;;
+           mount_device "$dev_part" "$dev_desc" ;;
 
         u) umount_device ;;
         *) ;;
