@@ -30,3 +30,7 @@ to unmount devices easily. In my case (i3), would be something like this:
 ```bash
 bindsym $mod+u exec "qsudo ~/.local/usb-rofi/usb_mgr -u"
 ```
+
+### Demo
+
+![video](video.gif)

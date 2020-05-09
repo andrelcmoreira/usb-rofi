@@ -35,7 +35,7 @@ umount_device()
     if [ -s "$mount_point" ]; then
         if do_umount "$mount_point" ; then
             rmdir "$mount_point"
-            notify_cmd="notify-send \"device umounted, now you can remove it safely\" -i \"SCRIPT_PATH/usb_icon.png\""
+            notify_cmd="notify-send \"usb-rofi\" \"Device umounted, now you can remove it safely\" -i \"SCRIPT_PATH/usb_icon.png\""
             su -c "$notify_cmd" USERNAME
         fi
     fi
@@ -52,7 +52,7 @@ mount_device()
 
         mkdir "$mount_point"
         if do_mount "$1" "$mount_point" ; then
-            notify_cmd="notify-send \"device $1 mounted at $mount_point\" -i \"SCRIPT_PATH/usb_icon.png\""
+            notify_cmd="notify-send \"usb-rofi\" \"Device $1 mounted at $mount_point\" -i \"SCRIPT_PATH/usb_icon.png\""
             su -c "$notify_cmd" USERNAME
         fi
     fi
