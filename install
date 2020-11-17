@@ -12,7 +12,7 @@ sed -i "s|SCRIPT_PATH|$path|g" udev/usb_rofi.rules
 sed -i "s|SCRIPT_PATH|$path|g" src/usb_mgr
 sed -i "s|USERNAME|$user|g" src/usb_mgr
 
-mkdir "$path"
+mkdir -p "$path"
 cp src/usb_mgr "$path"
 cp src/usb_icon.png "$path"
 cp udev/usb_rofi.rules /lib/udev/rules.d
