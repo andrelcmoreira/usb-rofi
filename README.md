@@ -1,6 +1,8 @@
 usb-rofi
 ========
 
+[![usb-rofi check](https://github.com/carvalhudo/usb-rofi/workflows/usb-rofi%20check/badge.svg)](https://github.com/carvalhudo/usb-rofi/actions)
+
 ### Overview
 
 **usb-rofi** is a simple tool for help the management of USB flash drives using the rofi app
