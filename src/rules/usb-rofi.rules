@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="block", ENV{DEVTYPE}=="partition", RUN{program}+="/usr/bin/usb-rofi -d '%E{DEVNAME}:%E{ID_VENDOR}'"
