@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ "$USER" != "root" ]; then
-    echo "you must to be root to continue"
-    exit 1
+  echo "you must to be root to continue"
+  exit 1
 fi
 
 script_path="/usr/bin/usb-rofi"
