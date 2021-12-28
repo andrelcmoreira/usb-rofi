@@ -31,9 +31,9 @@ umount_device() {
 
   if [ -s "$mount_point" ]; then
     if do_umount "$mount_point" ; then
-        rmdir "$mount_point"
-        notify_cmd="$NOTIFY \"$APP\" \"Device umounted, now you can remove it safely\" -i \"$ICON_PATH\""
-        su -c "$notify_cmd" "$USER"
+      rmdir "$mount_point"
+      notify_cmd="$NOTIFY \"$APP\" \"Device umounted, now you can remove it safely\" -i \"$ICON_PATH\""
+      su -c "$notify_cmd" "$USER"
     fi
   fi
 }
