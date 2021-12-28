@@ -5,6 +5,8 @@ NOTIFY="notify-send"
 ICON_PATH="/usr/share/usb-rofi/usb-icon.png"
 USER=USERNAME
 
+export DISPLAY=:0
+
 do_umount() {
   daemon_init=$(ps -p 1 -o comm=)
 
@@ -53,16 +55,18 @@ mount_device() {
   fi
 }
 
-export DISPLAY=:0
+main() {
+  while getopts 'd:u' op ; do
+    case $op in
+      d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
+         dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
 
-while getopts 'd:u' op ; do
-  case $op in
-    d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
-       dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
+         mount_device "$dev_part" "$dev_desc" ;;
 
-       mount_device "$dev_part" "$dev_desc" ;;
+      u) umount_device ;;
+      *) ;;
+    esac
+  done
+}
 
-    u) umount_device ;;
-    *) ;;
-  esac
-done
+main "$@"
