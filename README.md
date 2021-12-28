@@ -21,7 +21,7 @@ tool is for tiling window managers such as i3, dmw, bspwm, etc.
 
 ```bash
 $ git clone https://github.com/carvalhudo/usb-rofi.git && cd usb-rofi
-$ sudo setup.sh $LOGNAME
+$ sudo ./setup.sh $LOGNAME
 ```
 
 ### Usage
