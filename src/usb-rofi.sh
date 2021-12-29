@@ -29,7 +29,7 @@ do_mount() {
 
 umount_device() {
   selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
-  mount_point=$(echo "$selected_row" | awk '{print $6}')
+  mount_point=$(awk '{print $6}' <<< "$selected_row")
 
   if [ -s "$mount_point" ]; then
     if do_umount "$mount_point" ; then
@@ -58,8 +58,8 @@ mount_device() {
 main() {
   while getopts 'd:u' op ; do
     case $op in
-      d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
-         dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
+      d) dev_part=$(cut -f1 -d":" <<< "$OPTARG")
+         dev_desc=$(cut -f2 -d":" <<< "$OPTARG")
 
          mount_device "$dev_part" "$dev_desc" ;;
 
