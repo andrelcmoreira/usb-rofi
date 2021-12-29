@@ -28,7 +28,7 @@ $ sudo ./setup.sh $LOGNAME
 
 After the installation, the `usb-rofi` is ready to detect and notify the user when a new flash
 drive is attached to the system. In order to improve the usability, it’s recommended bind a hotkey
-to unmount devices easily. In my case (i3), would be something like this:
+to umount devices easily. In my case (i3), would be something like this:
 
 ```bash
 bindsym $mod+u exec "qsudo /usr/bin/usb-rofi -u"
