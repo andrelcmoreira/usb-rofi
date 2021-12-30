@@ -1,8 +1,7 @@
 #!/bin/sh
 
 APP="usb-rofi"
-NOTIFY="notify-send"
-ICON_PATH="/usr/share/usb-rofi/usb-icon.png"
+ICON="/usr/share/usb-rofi/usb-icon.png"
 USER=USERNAME
 
 export DISPLAY=:0
@@ -34,7 +33,7 @@ umount_device() {
   if [ -s "$mount_point" ]; then
     if do_umount "$mount_point" ; then
       rmdir "$mount_point"
-      notify_cmd="$NOTIFY \"$APP\" \"Device umounted, now you can remove it safely\" -i \"$ICON_PATH\""
+      notify_cmd="notify-send \"$APP\" \"Device umounted, now you can remove it safely\" -i \"$ICON\""
       su -c "$notify_cmd" "$USER"
     fi
   fi
@@ -49,7 +48,7 @@ mount_device() {
 
     mkdir "$mount_point"
     if do_mount "$1" "$mount_point" ; then
-      notify_cmd="$NOTIFY \"$APP\" \"Device $1 mounted at $mount_point\" -i \"$ICON_PATH\""
+      notify_cmd="notify-send \"$APP\" \"Device $1 mounted at $mount_point\" -i \"$ICON\""
       su -c "$notify_cmd" "$USER"
     fi
   fi
