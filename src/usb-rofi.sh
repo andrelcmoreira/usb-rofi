@@ -7,7 +7,7 @@ USER=USERNAME
 export DISPLAY=:0
 
 do_umount() {
-  daemon_init=$(ps -p 1 -o comm=)
+  local daemon_init=$(ps -p 1 -o comm=)
 
   if [ "$daemon_init" = "systemd" ]; then
     systemd-umount "$1"
@@ -17,7 +17,7 @@ do_umount() {
 }
 
 do_mount() {
-  daemon_init=$(ps -p 1 -o comm=)
+  local daemon_init=$(ps -p 1 -o comm=)
 
   if [ "$daemon_init" = "systemd" ]; then
     systemd-mount --no-block --automount=yes --collect "$1" "$2"
@@ -27,8 +27,8 @@ do_mount() {
 }
 
 umount_device() {
-  selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
-  mount_point=$(awk '{print $6}' <<< "$selected_row")
+  local selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
+  local mount_point=$(awk '{print $6}' <<< "$selected_row")
 
   if [ -s "$mount_point" ]; then
     if do_umount "$mount_point" ; then
@@ -40,8 +40,8 @@ umount_device() {
 }
 
 mount_device() {
-  rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\""
-  answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
+  local rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\""
+  local answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
 
   if [ "$answer" = "mount" ]; then
     mount_point="/mnt/$2"
@@ -57,8 +57,8 @@ mount_device() {
 main() {
   while getopts 'd:u' op ; do
     case $op in
-      d) dev_part=$(cut -f1 -d":" <<< "$OPTARG")
-         dev_desc=$(cut -f2 -d":" <<< "$OPTARG")
+      d) local dev_part=$(cut -f1 -d":" <<< "$OPTARG")
+         local dev_desc=$(cut -f2 -d":" <<< "$OPTARG")
 
          mount_device "$dev_part" "$dev_desc" ;;
 
