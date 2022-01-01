@@ -64,14 +64,18 @@ mount_device() {
   fi
 }
 
-while getopts 'd:c:u' op ; do
-  case $op in
-    d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
-       dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
+main() {
+  while getopts 'd:c:u' op ; do
+    case $op in
+      d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
+         dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
 
-       mount_device "$dev_part" "$dev_desc" ;;
-    c) clean_mp "$OPTARG" ;;
-    u) umount_device ;;
-    *) ;;
-  esac
-done
+         mount_device "$dev_part" "$dev_desc" ;;
+      c) clean_mp "$OPTARG" ;;
+      u) umount_device ;;
+      *) ;;
+    esac
+  done
+}
+
+main "$@"
