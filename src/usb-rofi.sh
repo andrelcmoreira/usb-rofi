@@ -7,7 +7,7 @@ USER=USERNAME
 export DISPLAY=:0
 
 do_umount() {
-  local daemon_init=$(ps -p 1 -o comm=)
+  daemon_init=$(ps -p 1 -o comm=)
 
   if [ "$daemon_init" = "systemd" ]; then
     systemd-umount "$1"
@@ -17,7 +17,7 @@ do_umount() {
 }
 
 do_mount() {
-  local daemon_init=$(ps -p 1 -o comm=)
+  daemon_init=$(ps -p 1 -o comm=)
 
   if [ "$daemon_init" = "systemd" ]; then
     systemd-mount --no-block --automount=yes --collect "$1" "$2"
@@ -26,9 +26,19 @@ do_mount() {
   fi
 }
 
+clean_mp() {
+  mount_point="$1"
+
+  if [ -s "$mount_point" ]; then
+    if do_umount "$mount_point" ; then
+      rmdir "$mount_point"
+    fi
+  fi
+}
+
 umount_device() {
-  local selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
-  local mount_point=$(awk '{print $6}' <<< "$selected_row")
+  selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
+  mount_point=$(echo "$selected_row" | awk '{print $6}')
 
   if [ -s "$mount_point" ]; then
     if do_umount "$mount_point" ; then
@@ -40,8 +50,8 @@ umount_device() {
 }
 
 mount_device() {
-  local rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\""
-  local answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
+  rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\""
+  answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
 
   if [ "$answer" = "mount" ]; then
     mount_point="/mnt/$2"
@@ -54,18 +64,14 @@ mount_device() {
   fi
 }
 
-main() {
-  while getopts 'd:u' op ; do
-    case $op in
-      d) local dev_part=$(cut -f1 -d":" <<< "$OPTARG")
-         local dev_desc=$(cut -f2 -d":" <<< "$OPTARG")
+while getopts 'd:c:u' op ; do
+  case $op in
+    d) dev_part=$(echo "$OPTARG" | cut -f1 -d":")
+       dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
 
-         mount_device "$dev_part" "$dev_desc" ;;
-
-      u) umount_device ;;
-      *) ;;
-    esac
-  done
-}
-
-main "$@"
+       mount_device "$dev_part" "$dev_desc" ;;
+    c) clean_mp "$OPTARG" ;;
+    u) umount_device ;;
+    *) ;;
+  esac
+done
