@@ -2,20 +2,20 @@
 
 export DISPLAY=:0
 
-umount_device() {
+do_umount() {
   selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
   mount_point=$(echo "$selected_row" | awk '{print $6}')
 
   if [ -s "$mount_point" ]; then
     if eval "$UMOUNT $mount_point" ; then
       rmdir "$mount_point"
-      notify_cmd="notify-send \"$APP\" \"Device umounted, now you can remove it safely\" -i \"$ICON\""
+      notify_cmd="notify-send $APP Device umounted, now you can remove it safely -i $ICON"
       su -c "$notify_cmd" "$USER"
     fi
   fi
 }
 
-mount_device() {
+do_mount() {
   rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\""
   answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
 
@@ -24,13 +24,13 @@ mount_device() {
 
     mkdir "$mount_point"
     if eval "$MOUNT $1 $mount_point" ; then
-      notify_cmd="notify-send \"$APP\" \"Device $1 mounted at $mount_point\" -i \"$ICON\""
+      notify_cmd="notify-send $APP Device $1 mounted at $mount_point -i $ICON"
       su -c "$notify_cmd" "$USER"
     fi
   fi
 }
 
-clean_mp() {
+do_clean() {
   mount_point="$1"
 
   if [ -s "$mount_point" ]; then
@@ -67,9 +67,9 @@ main() {
         dev_part=$(echo "$OPTARG" | cut -f1 -d":")
         dev_desc=$(echo "$OPTARG" | cut -f2 -d":")
 
-        mount_device "$dev_part" "$dev_desc" ;;
-      c) clean_mp "$OPTARG" ;;
-      u) umount_device ;;
+        do_mount "$dev_part" "$dev_desc" ;;
+      c) do_clean "$OPTARG" ;;
+      u) do_umount ;;
       *) ;;
     esac
   done
