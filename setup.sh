@@ -11,8 +11,8 @@ resources_path="/usr/share/usb-rofi"
 mkdir -p "$resources_path"
 
 cp src/usb-rofi.sh "$script_path"
-cp src/resources/usb-icon.png "$resources_path"
-cp src/rules/usb-rofi.rules /lib/udev/rules.d
+cp resources/usb-icon.png "$resources_path"
+cp src/udev/usb-rofi.rules /lib/udev/rules.d
 
 udevadm control --reload-rules
 
