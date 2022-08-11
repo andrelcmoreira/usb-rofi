@@ -34,6 +34,10 @@ to umount devices easily. In my case (i3), would be something like this:
 bindsym $mod+u exec "qsudo /usr/bin/usb-rofi -u"
 ```
 
+### Supported distros
+
+- void-linux
+
 ### Demo
 
 ![video](.video.gif)

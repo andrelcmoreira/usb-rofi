@@ -44,13 +44,10 @@ set_variables() {
   pid_1=$(cat /proc/1/comm)
 
   case $pid_1 in
-    # TODO: put a comment here explaining the difference between systemd-mount and mount
-    systemd)
-      MOUNT="systemd-mount --no-block --automount=yes --collect"
-      UMOUNT="systemd-umount" ;;
-    *)
+    runit)
       MOUNT="mount"
       UMOUNT="umount" ;;
+    # TODO: systemd
   esac
 
   APP="usb-rofi"
