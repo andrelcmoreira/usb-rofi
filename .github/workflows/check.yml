@@ -9,4 +9,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Static analysis
-        run: shellcheck src/usb-rofi.sh
+        run: shellcheck src/usb-rofi.in
