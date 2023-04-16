@@ -21,7 +21,8 @@ managers such as i3, dmw, bspwm, etc.
 ### Installation
 
 ```bash
-$ sudo ./setup.sh $LOGNAME
+$ make usb-rofi
+$ sudo make install
 ```
 
 ### Usage
