@@ -42,4 +42,4 @@ So far, the `usb-rofi` was tested only in void-linux.
 
 ### Demo
 
-![video](.video.gif)
+![video](resources/.video.gif)
