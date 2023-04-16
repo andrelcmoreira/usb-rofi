@@ -3,21 +3,21 @@
 export DISPLAY=:0
 
 do_umount() {
-  selected_row=$(df -h | rofi -dmenu -p "Select the device to umount")
+  selected_row=$(df -h | grep ^/dev | $ROFI -p "Select the device to umount")
   mount_point=$(echo "$selected_row" | awk '{print $6}')
 
   if [ -s "$mount_point" ]; then
     if eval "$UMOUNT $mount_point" ; then
-      notify_cmd="notify-send $APP \"Device umounted, now you can remove it safely\" -i $ICON"
+      cmd="$SHOW_MSG \"Device umounted, now you can remove it safely\" -i $ICON"
 
       rmdir "$mount_point"
-      su -c "$notify_cmd" "$USER"
+      su -c "$cmd" "$USER"
     fi
   fi
 }
 
 do_mount() {
-  rofi_cmd="rofi -dmenu -p \"Device '$2 $1' detected. Select the action\""
+  rofi_cmd="$ROFI -p \"Device '$2 $1' detected. Select the action\""
   answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
 
   if [ "$answer" = "mount" ]; then
@@ -25,8 +25,8 @@ do_mount() {
 
     mkdir "$mount_point"
     if eval "$MOUNT $1 $mount_point" ; then
-      notify_cmd="notify-send $APP \"Device $1 mounted at $mount_point\" -i $ICON"
-      su -c "$notify_cmd" "$USER"
+      cmd="$SHOW_MSG \"Device $1 mounted at $mount_point\" -i $ICON"
+      su -c "$cmd" "$USER"
     fi
   fi
 }
@@ -53,6 +53,8 @@ set_env() {
 
   APP="usb-rofi"
   ICON="/usr/share/$APP/usb-icon.png"
+  ROFI="rofi -dmenu"
+  SHOW_MSG="notify-send $APP"
   USER=@@USERNAME@@
 }
 
