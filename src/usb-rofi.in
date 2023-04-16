@@ -52,7 +52,7 @@ set_variables() {
 
   APP="usb-rofi"
   ICON="/usr/share/$APP/usb-icon.png"
-  USER=USERNAME
+  USER=@@USERNAME@@
 }
 
 main() {
