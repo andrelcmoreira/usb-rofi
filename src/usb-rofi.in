@@ -3,12 +3,12 @@
 export DISPLAY=:0
 
 do_umount() {
-  selected_row=$(df -h | grep ^/dev | $ROFI -p "Select the device to umount")
+  selected_row=$(df | grep ^/dev | $ROFI -p "Select the device to umount")
   mount_point=$(echo "$selected_row" | awk '{print $6}')
 
   if [ -s "$mount_point" ]; then
     if eval "$UMOUNT $mount_point" ; then
-      cmd="$SHOW_MSG \"Device umounted, now you can remove it safely\" -i $ICON"
+      cmd="$NOTIFY \"Device umounted, now you can remove it safely\""
 
       rmdir "$mount_point"
       su -c "$cmd" "$USER"
@@ -25,7 +25,7 @@ do_mount() {
 
     mkdir "$mount_point"
     if eval "$MOUNT $1 $mount_point" ; then
-      cmd="$SHOW_MSG \"Device $1 mounted at $mount_point\" -i $ICON"
+      cmd="$NOTIFY \"Device $1 mounted at $mount_point\""
       su -c "$cmd" "$USER"
     fi
   fi
@@ -48,13 +48,12 @@ set_env() {
     runit)
       MOUNT="mount"
       UMOUNT="umount" ;;
-    # TODO: systemd
   esac
 
   APP="usb-rofi"
   ICON="/usr/share/$APP/usb-icon.png"
   ROFI="rofi -dmenu"
-  SHOW_MSG="notify-send $APP"
+  NOTIFY="notify-send $APP -i $ICON"
   USER=@@USERNAME@@
 }
 
