@@ -3,8 +3,8 @@
 export DISPLAY=:0
 
 do_umount() {
-  selected_row=$(df | grep ^/dev | $ROFI -p "Select the device to umount")
-  mount_point=$(echo "$selected_row" | awk '{print $6}')
+  selected=$(df | grep ^/dev | $ROFI -p "Select the device to umount")
+  mount_point=$(echo "$selected" | awk '{print $6}')
 
   if [ -s "$mount_point" ]; then
     if eval "$UMOUNT $mount_point" ; then
@@ -45,7 +45,10 @@ set_env() {
   pid_1=$(cat /proc/1/comm)
 
   case $pid_1 in
-    runit)
+    systemd)
+      MOUNT="systemd-mount --no-block --collect"
+      UMOUNT="systemd-umount" ;;
+    *)
       MOUNT="mount"
       UMOUNT="umount" ;;
   esac
