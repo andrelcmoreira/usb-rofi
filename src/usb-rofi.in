@@ -2,51 +2,40 @@
 
 export DISPLAY=:0
 
-do_umount() {
-  ls_devices_cmd="df -h | grep ^/dev | $ROFI -p \"Select the device to umount\""
-  device=$(_run_user_cmd "$ls_devices_cmd")
-  mount_point=$(echo "$device" | awk '{print $6}')
-
-  if [ -s "$mount_point" ]; then
-    if eval "$UMOUNT $mount_point" ; then
-      notify_cmd="$NOTIFY \"Device umounted, now you can remove it safely\""
-
-      rmdir "$mount_point"
-      _run_user_cmd "$notify_cmd"
-    fi
-  fi
-}
-
-do_mount() {
-  show_action_cmd="$ROFI -p \"Device '$2 $1' detected. Select the action\""
-  action=$(printf "mount\nignore" | _run_user_cmd "$show_action_cmd")
-
-  if [ "$action" = "mount" ]; then
-    mount_point="/mnt/$2"
-
-    mkdir -p "$mount_point"
-    if eval "$MOUNT $1 $mount_point" ; then
-      notify_cmd="$NOTIFY \"Device $1 mounted at $mount_point\""
-
-      _run_user_cmd "$notify_cmd"
-    fi
-  fi
-}
-
-do_clean() {
-  mount_point="$1"
-
-  if [ -s "$mount_point" ]; then
-    if eval "$UMOUNT $mount_point" ; then
-      rmdir "$mount_point"
-    fi
-  fi
-}
-
 _run_user_cmd() {
   cmd=$1
+  user=@@USERNAME@@
 
-  su -c "$cmd" "$USER"
+  su -c "$cmd" "$user"
+}
+
+_notify() {
+  msg=$1
+  app="usb-rofi"
+  icon="/usr/share/$app/usb-icon.png"
+  cmd="notify-send \"$app\" -i \"$icon\" \"$msg\""
+
+  _run_user_cmd "$cmd"
+}
+
+_rofi() {
+  msg=$1
+  cmd="rofi -dmenu -p \"$msg\""
+
+  _run_user_cmd "$cmd"
+}
+
+_mount() {
+  dev=$1
+  mount_point=$2
+
+  eval "$MOUNT_CMD $dev $mount_point"
+}
+
+_umount() {
+  mount_point=$1
+
+  eval "$UMOUNT_CMD $mount_point"
 }
 
 _set_env() {
@@ -54,18 +43,50 @@ _set_env() {
 
   case $pid_1 in
     systemd)
-      MOUNT="systemd-mount --no-block --collect"
-      UMOUNT="systemd-umount" ;;
+      MOUNT_CMD="systemd-mount --no-block --collect"
+      UMOUNT_CMD="systemd-umount" ;;
     *)
-      MOUNT="mount"
-      UMOUNT="umount" ;;
+      MOUNT_CMD="mount"
+      UMOUNT_CMD="umount" ;;
   esac
+}
 
-  APP="usb-rofi"
-  ICON="/usr/share/$APP/usb-icon.png"
-  ROFI="rofi -dmenu"
-  NOTIFY="notify-send $APP -i $ICON"
-  USER=@@USERNAME@@
+do_umount() {
+  dev=$(df -h | grep ^/dev | _rofi "Select the device to umount")
+  mount_point=$(echo "$dev" | awk '{print $6}')
+
+  if [ -s "$mount_point" ]; then
+    if _umount "$mount_point" ; then
+      rmdir "$mount_point"
+
+      _notify "Device umounted, now you can remove it safely"
+    fi
+  fi
+}
+
+do_mount() {
+  dev=$1
+  vendor=$2
+  action=$(printf "mount\nignore" | _rofi "Device '$vendor $dev' detected")
+
+  if [ "$action" = "mount" ]; then
+    mount_point="/mnt/$vendor"
+
+    mkdir -p "$mount_point"
+    if _mount "$dev" "$mount_point" ; then
+      _notify "Device $dev mounted at $mount_point"
+    fi
+  fi
+}
+
+do_clean() {
+  mount_point=$1
+
+  if [ -s "$mount_point" ]; then
+    if _umount "$mount_point" ; then
+      rmdir "$mount_point"
+    fi
+  fi
 }
 
 main() {
