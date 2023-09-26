@@ -26,10 +26,10 @@ _rofi() {
 }
 
 _mount() {
-  dev=$1
+  device=$1
   mount_point=$2
 
-  eval "$MOUNT_CMD $dev $mount_point"
+  eval "$MOUNT_CMD $device $mount_point"
 }
 
 _umount() {
@@ -52,8 +52,9 @@ _set_env() {
 }
 
 do_umount() {
-  dev=$(df -h | grep ^/dev | _rofi "Select the device to umount")
-  mount_point=$(echo "$dev" | awk '{print $6}')
+  device=$(df | grep "/mnt/*" | awk '{print $1 " -> " $6}' \
+    | _rofi "Select the device to umount")
+  mount_point=$(echo "$device" | awk '{print $3}')
 
   if [ -s "$mount_point" ]; then
     if _umount "$mount_point" ; then
@@ -65,16 +66,17 @@ do_umount() {
 }
 
 do_mount() {
-  dev=$1
+  device=$1
   vendor=$2
-  action=$(printf "mount\nignore" | _rofi "Device '$vendor $dev' detected")
+  action=$(printf "mount\nignore" | \
+    _rofi "Device '$vendor $device' detected. Select the action")
 
   if [ "$action" = "mount" ]; then
     mount_point="/mnt/$vendor"
 
     mkdir -p "$mount_point"
-    if _mount "$dev" "$mount_point" ; then
-      _notify "Device $dev mounted at $mount_point"
+    if _mount "$device" "$mount_point" ; then
+      _notify "Device $device mounted at $mount_point"
     fi
   fi
 }
