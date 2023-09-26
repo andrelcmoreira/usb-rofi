@@ -3,30 +3,32 @@
 export DISPLAY=:0
 
 do_umount() {
-  selected=$(df | grep ^/dev | $ROFI -p "Select the device to umount")
-  mount_point=$(echo "$selected" | awk '{print $6}')
+  ls_devices_cmd="df -h | grep ^/dev | $ROFI -p \"Select the device to umount\""
+  device=$(_run_user_cmd "$ls_devices_cmd")
+  mount_point=$(echo "$device" | awk '{print $6}')
 
   if [ -s "$mount_point" ]; then
     if eval "$UMOUNT $mount_point" ; then
-      cmd="$NOTIFY \"Device umounted, now you can remove it safely\""
+      notify_cmd="$NOTIFY \"Device umounted, now you can remove it safely\""
 
       rmdir "$mount_point"
-      su -c "$cmd" "$USER"
+      _run_user_cmd "$notify_cmd"
     fi
   fi
 }
 
 do_mount() {
-  rofi_cmd="$ROFI -p \"Device '$2 $1' detected. Select the action\""
-  answer=$(printf "mount\nignore" | su -c "$rofi_cmd" "$USER")
+  show_action_cmd="$ROFI -p \"Device '$2 $1' detected. Select the action\""
+  action=$(printf "mount\nignore" | _run_user_cmd "$show_action_cmd")
 
-  if [ "$answer" = "mount" ]; then
+  if [ "$action" = "mount" ]; then
     mount_point="/mnt/$2"
 
-    mkdir "$mount_point"
+    mkdir -p "$mount_point"
     if eval "$MOUNT $1 $mount_point" ; then
-      cmd="$NOTIFY \"Device $1 mounted at $mount_point\""
-      su -c "$cmd" "$USER"
+      notify_cmd="$NOTIFY \"Device $1 mounted at $mount_point\""
+
+      _run_user_cmd "$notify_cmd"
     fi
   fi
 }
@@ -41,7 +43,13 @@ do_clean() {
   fi
 }
 
-set_env() {
+_run_user_cmd() {
+  cmd=$1
+
+  su -c "$cmd" "$USER"
+}
+
+_set_env() {
   pid_1=$(cat /proc/1/comm)
 
   case $pid_1 in
@@ -61,7 +69,7 @@ set_env() {
 }
 
 main() {
-  set_env
+  _set_env
 
   while getopts 'd:c:u' op ; do
     case $op in
