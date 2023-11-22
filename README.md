@@ -1,7 +1,7 @@
 usb-rofi
 ========
 
-[![usb-rofi check](https://github.com/carvalhudo/usb-rofi/workflows/usb-rofi%20check/badge.svg)](https://github.com/carvalhudo/usb-rofi/actions)
+[![usb-rofi check](https://github.com/andrelcmoreira/usb-rofi/workflows/usb-rofi%20check/badge.svg)](https://github.com/andrelcmoreira/usb-rofi/actions)
 
 ### Overview
 
